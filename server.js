@@ -5,17 +5,25 @@ const cors = require('cors'); // 用于解决跨域问题 (CORS)
 
 // --- 2. 配置常量 ---
 const app = express();
-const PORT = 3000;
-// 您的 MongoDB 真实密码
-const MONGODB_PASSWORD = 'hh080326'; 
-// 使用您的连接字符串和密码构建最终的 URI
-const DB_URI = `mongodb+srv://liyhleo45_db_user:${MONGODB_PASSWORD}@cluster0.tmpxwys.mongodb.net/leaderboardDB?retryWrites=true&w=majority`;
+// 在 Vercel 部署时，使用 Vercel 提供的端口；本地使用 3000
+const PORT = process.env.PORT || 3000;
 
+// 从 Vercel 环境变量中读取完整的连接 URI
+// 环境变量名称为 MONGODB_URI
+const DB_URI = process.env.MONGODB_URI;
+
+// 检查 URI 是否存在，以防止连接失败
+if (!DB_URI) {
+  console.error('❌ MONGODB_URI 环境变量未设置! 请在 Vercel 中设置此变量。');
+  // 退出程序以防止进一步错误
+  // 在本地运行时，您可能需要手动设置这个变量
+  // process.exit(1); 
+}
 
 // --- 3. 配置中间件 ---
 // 允许 Express 解析前端传来的 JSON 格式数据
 app.use(express.json()); 
-// 允许所有来源的域名访问您的 API (解决本地文件运行时的 CORS 问题)
+// 允许所有来源的域名访问您的 API
 app.use(cors()); 
 
 
@@ -91,5 +99,5 @@ app.get('/api/leaderboard', async (req, res) => {
 
 // --- 7. 启动服务器 ---
 app.listen(PORT, () => {
-  console.log(`🚀 服务器已启动，正在监听端口: http://localhost:${PORT}`);
+  console.log(`🚀 服务器已启动，正在监听端口: ${PORT}`);
 });
